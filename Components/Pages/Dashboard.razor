@@ -1,0 +1,177 @@
+
+@page "/dashboard"
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@inject IRecetteService RecetteService
+@inject NavigationManager NavManager
+
+<PageTitle>Dashboard Recettes</PageTitle>
+
+<!-- ===== KPI Cards ===== -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Recettes</h5>
+                <h2>@TotalRecettes</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total Ingrédients</h5>
+                <h2>@TotalIngredients</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Répartition Catégories</h5>
+                @foreach (var kv in RepartitionCategorie)
+                {
+                    <small class="d-block">@kv.Key : @kv.Value</small>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Par Type Cuisine</h5>
+                @foreach (var kv in RepartitionCuisine)
+                {
+                    <small class="d-block">@kv.Key : @kv.Value</small>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Actions ===== -->
+<a href="/edit-recette" class="btn btn-success mb-3">+ Nouvelle Recette</a>
+<a href="/ingredients" class="btn btn-outline-secondary mb-3 ms-2">Gérer les Ingrédients</a>
+
+<!-- ===== Filtres ===== -->
+<div class="row mb-3">
+    <div class="col-md-3">
+        <select class="form-select" @onchange="FiltrerCategorie">
+            <option value="">-- Toutes catégories --</option>
+            @foreach (var cat in Categories)
+            {
+                <option value="@cat">@cat</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" @onchange="FiltrerCuisine">
+            <option value="">-- Tous types --</option>
+            @foreach (var type in TypesCuisine)
+            {
+                <option value="@type">@type</option>
+            }
+        </select>
+    </div>
+</div>
+
+<!-- ===== Table des recettes ===== -->
+@if (Recettes == null)
+{
+    <p>Chargement...</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Type Cuisine</th>
+                <th>Personnes</th>
+                <th>Calories Totales</th>
+                <th>Cal/Personne</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var recette in RecettesFiltrees)
+            {
+                <tr>
+                    <td>@recette.Titre</td>
+                    <td><span class="badge bg-secondary">@recette.Categorie</span></td>
+                    <td>@recette.TypeCuisine</td>
+                    <td>@recette.NombrePersonnes</td>
+                    <td>@CaloriesTotales.GetValueOrDefault(recette.Id, 0).ToString("F0") kcal</td>
+                    <td>@CaloriesParPersonne.GetValueOrDefault(recette.Id, 0).ToString("F0") kcal</td>
+                    <td>
+                        <a href="/edit-recette/@recette.Id" class="btn btn-sm btn-outline-primary">Éditer</a>
+                        <button class="btn btn-sm btn-outline-danger"
+                                @onclick="() => SupprimerRecette(recette.Id)">
+                            Supprimer
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Recette>? Recettes;
+    private List<Recette> RecettesFiltrees => FiltrerListe();
+
+    private int TotalRecettes;
+    private int TotalIngredients;
+    private Dictionary<string, int> RepartitionCategorie = new();
+    private Dictionary<string, int> RepartitionCuisine   = new();
+    private Dictionary<int, double> CaloriesTotales       = new();
+    private Dictionary<int, double> CaloriesParPersonne   = new();
+
+    private string FiltreCategorie = "";
+    private string FiltreCuisine   = "";
+
+    private static readonly List<string> Categories  = new() { "Petit-déjeuner", "Déjeuner", "Dîner", "Dessert" };
+    private static readonly List<string> TypesCuisine = new() { "Tunisienne", "Française", "Italienne", "Méditerranéenne", "Autre" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ChargerDonnees();
+    }
+
+    private async Task ChargerDonnees()
+    {
+        Recettes              = await RecetteService.GetRecettesAsync();
+        TotalRecettes         = await RecetteService.GetTotalRecettesAsync();
+        TotalIngredients      = (await RecetteService.GetIngredientsAsync()).Count;
+        RepartitionCategorie  = await RecetteService.GetRepartitionParCategorieAsync();
+        RepartitionCuisine    = await RecetteService.GetRepartitionParTypeCuisineAsync();
+
+        // Calcul des calories pour chaque recette
+        CaloriesTotales    = new();
+        CaloriesParPersonne = new();
+        foreach (var r in Recettes)
+        {
+            CaloriesTotales[r.Id]    = await RecetteService.GetCaloriesTotalesRecetteAsync(r.Id);
+            CaloriesParPersonne[r.Id] = await RecetteService.GetCaloriesParPersonneAsync(r.Id);
+        }
+    }
+
+    private List<Recette> FiltrerListe()
+    {
+        if (Recettes == null) return new();
+        return Recettes
+            .Where(r => string.IsNullOrEmpty(FiltreCategorie) || r.Categorie == FiltreCategorie)
+            .Where(r => string.IsNullOrEmpty(FiltreCuisine)   || r.TypeCuisine == FiltreCuisine)
+            .ToList();
+    }
+
+    private void FiltrerCategorie(ChangeEventArgs e) => FiltreCategorie = e.Value?.ToString() ?? "";
+    private void FiltrerCuisine(ChangeEventArgs e)   => FiltreCuisine   = e.Value?.ToString() ?? "";
+
+    private async Task SupprimerRecette(int id)
+    {
+        await RecetteService.DeleteRecetteAsync(id);
+        await ChargerDonnees();
+    }
+}

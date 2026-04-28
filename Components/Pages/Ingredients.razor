@@ -1,0 +1,66 @@
+
+@page "/ingredients"
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@inject IRecetteService RecetteService
+@inject NavigationManager NavManager
+
+<PageTitle>Gestion des Ingrédients</PageTitle>
+<h3>Ingrédients</h3>
+
+<a href="/edit-ingredient" class="btn btn-success mb-3">+ Nouvel Ingrédient</a>
+
+@if (_ingredients == null)
+{
+    <p>Chargement...</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Nom</th>
+                <th>Calories / Unité</th>
+                <th>Unité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ing in _ingredients)
+            {
+                <tr>
+                    <td>@ing.Nom</td>
+                    <td>@ing.CaloriesParUnite kcal</td>
+                    <td>@ing.Unite</td>
+                    <td>
+                        <a href="/edit-ingredient/@ing.Id" class="btn btn-sm btn-outline-primary">Éditer</a>
+                        <button class="btn btn-sm btn-outline-danger"
+                                @onclick="() => Supprimer(ing.Id)">
+                            Supprimer
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Ingredient>? _ingredients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Charger();
+    }
+
+    private async Task Charger()
+    {
+        _ingredients = await RecetteService.GetIngredientsAsync();
+    }
+
+    private async Task Supprimer(int id)
+    {
+        await RecetteService.DeleteIngredientAsync(id);
+        await Charger();
+    }
+}

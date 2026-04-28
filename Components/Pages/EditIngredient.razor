@@ -1,0 +1,73 @@
+@page "/edit-ingredient"
+@page "/edit-ingredient/{Id:int}"
+@rendermode InteractiveServer
+
+
+@using Microsoft.AspNetCore.Components.Forms
+@inject IRecetteService RecetteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>@(Id.HasValue ? "Modifier l'Ingrédient" : "Nouvel Ingrédient")</PageTitle>
+<h3>@(Id.HasValue ? "Modifier l'Ingrédient" : "Nouvel Ingrédient")</h3>
+
+@if (ingredient == null)
+{
+    <p><em>Chargement...</em></p>
+}
+else
+{
+    <EditForm Model="ingredient" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" />
+
+        <div class="mb-3">
+            <label class="form-label">Nom :</label>
+            <InputText @bind-Value="ingredient.Nom" class="form-control" />
+            <ValidationMessage For="@(() => ingredient.Nom)" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Calories par unité (kcal) :</label>
+            <InputNumber @bind-Value="ingredient.CaloriesParUnite" class="form-control" />
+            <ValidationMessage For="@(() => ingredient.CaloriesParUnite)" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Unité :</label>
+            <InputSelect @bind-Value="ingredient.Unite" class="form-select">
+                <option value="g">g (gramme)</option>
+                <option value="ml">ml (millilitre)</option>
+                <option value="pièce">pièce</option>
+                <option value="cuillère">cuillère à soupe</option>
+                <option value="tasse">tasse</option>
+            </InputSelect>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a href="/ingredients" class="btn btn-secondary ms-2">Annuler</a>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private Ingredient ingredient;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+            ingredient = await RecetteService.GetIngredientByIdAsync(Id.Value);
+
+        ingredient ??= new Ingredient();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (Id.HasValue)
+            await RecetteService.UpdateIngredientAsync(ingredient);
+        else
+            await RecetteService.AddIngredientAsync(ingredient);
+
+        NavigationManager.NavigateTo("/ingredients");
+    }
+}
