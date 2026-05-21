@@ -1,57 +1,40 @@
 @page "/dashboard"
-@attribute [Authorize]
 @rendermode InteractiveServer
 @attribute [StreamRendering]
+@attribute [Authorize]
 @inject IRecetteService RecetteService
 @inject NavigationManager NavManager
 
 <PageTitle>Dashboard Recettes</PageTitle>
 
-<!-- ===== KPI Cards ===== -->
-<div class="row mb-4">
+<div class="row mb-4 g-3">
     <div class="col-md-3">
-        <div class="card text-white bg-primary shadow-sm">
-            <div class="card-body">
-                <h6 class="card-title">Total Recettes</h6>
-                <h2 class="mb-0">@TotalRecettes</h2>
-            </div>
-        </div>
+        <KpiCard Title="Total Recettes"
+                 Value="@TotalRecettes.ToString()"
+                 BackgroundColorClass="bg-primary"
+                 IconClass="bi-journal-richtext" />
     </div>
     <div class="col-md-3">
-        <div class="card text-white bg-success shadow-sm">
-            <div class="card-body">
-                <h6 class="card-title">Total Ingrédients</h6>
-                <h2 class="mb-0">@TotalIngredients</h2>
-            </div>
-        </div>
+        <KpiCard Title="Total Ingrédients"
+                 Value="@TotalIngredients.ToString()"
+                 BackgroundColorClass="bg-success"
+                 IconClass="bi-basket2-fill" />
     </div>
     <div class="col-md-3">
-        <div class="card text-white bg-warning shadow-sm">
-            <div class="card-body">
-                <h6 class="card-title">Catégories</h6>
-                @foreach (var kv in RepartitionCategorie)
-                {
-                    <small class="d-block">@kv.Key : @kv.Value</small>
-                }
-            </div>
-        </div>
+        <KpiCard Title="Catégories"
+                 Value="@RepartitionCategorie.Count.ToString()"
+                 BackgroundColorClass="bg-warning"
+                 IconClass="bi-tags-fill" />
     </div>
     <div class="col-md-3">
-        <div class="card text-white bg-info shadow-sm">
-            <div class="card-body">
-                <h6 class="card-title">Types de Cuisine</h6>
-                @foreach (var kv in RepartitionCuisine)
-                {
-                    <small class="d-block">@kv.Key : @kv.Value</small>
-                }
-            </div>
-        </div>
+        <KpiCard Title="Types de Cuisine"
+                 Value="@RepartitionCuisine.Count.ToString()"
+                 BackgroundColorClass="bg-info"
+                 IconClass="bi-globe" />
     </div>
 </div>
 
-<!-- ===== Graphiques ===== -->
 <div class="row mb-4">
-    <!-- Barres : calories moyennes par catégorie -->
     <div class="col-md-8">
         <div class="card shadow-sm h-100">
             <div class="card-header bg-white">
@@ -76,8 +59,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Donut : répartition par catégorie -->
     <div class="col-md-4">
         <div class="card shadow-sm h-100">
             <div class="card-header bg-white">
@@ -86,7 +67,7 @@
                     Répartition par Catégorie
                 </h5>
             </div>
-            <div class="card-body text-center">
+            <div class="card-body">
                 <RadzenChart>
                     <RadzenDonutSeries Data="@CountCategorie"
                                        CategoryProperty="Label"
@@ -104,17 +85,21 @@
     </div>
 </div>
 
-<AuthorizeView Roles="Admin">
+
+<AuthorizeView>
     <Authorized>
         <div class="d-flex gap-2 mb-3">
-            <a href="/edit-recette" class="btn btn-success">+ Nouvelle Recette</a>
-            <a href="/ingredients" class="btn btn-outline-secondary">Gérer les Ingrédients</a>
+            <a href="/edit-recette" class="btn btn-success">
+                <i class="bi bi-plus-lg me-1"></i>Nouvelle Recette
+            </a>
+            <a href="/ingredients" class="btn btn-outline-secondary">
+                <i class="bi bi-basket2 me-1"></i>Gérer les Ingrédients
+            </a>
         </div>
     </Authorized>
 </AuthorizeView>
 
-<!-- ===== Recherche + Filtres ===== -->
-<div class="row mb-3 align-items-end">
+<div class="row mb-3 align-items-end g-2">
     <div class="col-md-4">
         <div class="input-group">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -147,81 +132,77 @@
     {
         <div class="col-md-2">
             <button class="btn btn-outline-secondary w-100" @onclick="ResetFiltres">
-                Réinitialiser
+                <i class="bi bi-x-circle me-1"></i>Réinitialiser
             </button>
         </div>
     }
 </div>
 
+@if (!string.IsNullOrEmpty(FiltreCategorie))
+{
+    <div class="alert alert-info py-1 mb-2">
+        Filtre actif : <strong>@FiltreCategorie</strong>
+    </div>
+}
+
+<div class="mb-3">
+    <button class="btn btn-outline-secondary btn-sm"
+            @onclick="() => ShowAsCards = !ShowAsCards">
+        <i class="bi bi-arrow-left-right me-1"></i>
+        @(ShowAsCards ? "Vue Tableau" : "Vue Cartes")
+    </button>
+</div>
 
 
-<!-- ===== Table des recettes ===== -->
 @if (RecettesFiltrees == null)
 {
     <p>Chargement...</p>
 }
+else if (ShowAsCards)
+{
+    <!-- Vue Cartes -->
+    <div class="row g-3">
+        @foreach (var recette in RecettesFiltrees)
+        {
+            <div class="col-md-4">
+                <RecetteCard Recette="recette"
+                             CaloriesTotales="@CaloriesTotales.GetValueOrDefault(recette.Id, 0)"
+                             CaloriesParPersonne="@CaloriesParPersonne.GetValueOrDefault(recette.Id, 0)"
+                             OnDeleteClicked="SupprimerRecette" />
+            </div>
+        }
+        @if (!RecettesFiltrees.Any())
+        {
+            <p class="text-muted text-center">Aucune recette trouvée.</p>
+        }
+    </div>
+}
 else
 {
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>Titre</th>
-                <th>Catégorie</th>
-                <th>Type Cuisine</th>
-                <th>Personnes</th>
-                <th>Cal. Totales</th>
-                <th>Cal/Personne</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var recette in RecettesFiltrees)
-            {
-                <tr>
-                    <td>@recette.Titre</td>
-                    <td><span class="badge bg-secondary">@recette.Categorie</span></td>
-                    <td>@recette.TypeCuisine</td>
-                    <td>@recette.NombrePersonnes</td>
-                    <td>@CaloriesTotales.GetValueOrDefault(recette.Id, 0).ToString("F0") kcal</td>
-                    <td>@CaloriesParPersonne.GetValueOrDefault(recette.Id, 0).ToString("F0") kcal</td>
-                    <td>
-    <AuthorizeView Roles="Admin">
-        <Authorized>
-            <a href="/edit-recette/@recette.Id"
-               class="btn btn-sm btn-outline-primary">Éditer</a>
-            <button class="btn btn-sm btn-outline-danger"
-                    @onclick="() => SupprimerRecette(recette.Id)">
-                Supprimer
-            </button>
-        </Authorized>
-    </AuthorizeView>
-</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+
+    <RecetteTable Recettes="RecettesFiltrees"
+                  CaloriesTotales="CaloriesTotales"
+                  CaloriesParPersonne="CaloriesParPersonne"
+                  OnDeleteClicked="SupprimerRecette" />
 
     @if (!RecettesFiltrees.Any())
     {
-        <p class="text-muted text-center">Aucune recette ne correspond à votre recherche.</p>
+        <p class="text-muted text-center">Aucune recette trouvée.</p>
     }
 }
 
 @code {
-    // --- Données ---
-    private List<Recette>? RecettesFiltrees;
-    private int TotalRecettes;
-    private int TotalIngredients;
+    private List<Recette>?          RecettesFiltrees;
+    private int                     TotalRecettes;
+    private int                     TotalIngredients;
     private Dictionary<string, int> RepartitionCategorie = new();
     private Dictionary<string, int> RepartitionCuisine   = new();
     private Dictionary<int, double> CaloriesTotales       = new();
     private Dictionary<int, double> CaloriesParPersonne   = new();
+    private List<RecetteStat>       StatsCategorie        = new();
+    private List<RecetteCountStat>  CountCategorie        = new();
+    private bool                    ShowAsCards           = false;
 
-    // --- Graphiques ---
-    private List<RecetteStat>      StatsCategorie  = new();
-    private List<RecetteCountStat> CountCategorie  = new();
-
-    // --- Filtres ---
     private string FiltreCategorie = "";
     private string FiltreCuisine   = "";
     private string _searchText     = "";
@@ -241,7 +222,6 @@ else
         await ExecuteSearch();
     }
 
-    // Charge les KPI et les graphiques (une seule fois ou après suppression)
     private async Task ChargerKpis()
     {
         TotalRecettes        = await RecetteService.GetTotalRecettesAsync();
@@ -252,7 +232,6 @@ else
         CountCategorie       = await RecetteService.GetCountParCategorieAsync();
     }
 
-    // Requête SQL dynamique (IQueryable côté service)
     private async Task ExecuteSearch()
     {
         RecettesFiltrees = await RecetteService.SearchRecettesAsync(
@@ -260,19 +239,16 @@ else
             string.IsNullOrEmpty(FiltreCuisine)   ? null : FiltreCuisine,
             string.IsNullOrEmpty(_searchText)      ? null : _searchText);
 
-        // Calcul calories pour les recettes affichées uniquement
         CaloriesTotales     = new();
         CaloriesParPersonne = new();
         foreach (var r in RecettesFiltrees)
         {
-            CaloriesTotales[r.Id]    = await RecetteService.GetCaloriesTotalesRecetteAsync(r.Id);
+            CaloriesTotales[r.Id]     = await RecetteService.GetCaloriesTotalesRecetteAsync(r.Id);
             CaloriesParPersonne[r.Id] = await RecetteService.GetCaloriesParPersonneAsync(r.Id);
         }
-
         StateHasChanged();
     }
 
-    // Clic sur une barre → filtre la catégorie (toggle)
     private async Task OnChartClick(SeriesClickEventArgs args)
     {
         string clicked = args.Category.ToString() ?? "";

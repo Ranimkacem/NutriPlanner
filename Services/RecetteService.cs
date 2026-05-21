@@ -13,9 +13,6 @@ namespace NutriPlanner.Services
             _dbContext = dbContext;
         }
 
-        // =========================================================
-        // RECETTES
-        // =========================================================
 
         public async Task<List<Recette>> GetRecettesAsync()
         {
@@ -43,12 +40,12 @@ namespace NutriPlanner.Services
 
        public async Task UpdateRecetteAsync(Recette recette)
 {
-    // Supprimer les anciennes lignes d'ingrédients
+
     var anciennesLignes = _dbContext.RecetteIngredients
         .Where(ri => ri.RecetteId == recette.Id);
     _dbContext.RecetteIngredients.RemoveRange(anciennesLignes);
 
-    // Mettre à jour la recette (sans toucher aux nouvelles lignes encore)
+
     _dbContext.Recettes.Update(recette);
 
     await _dbContext.SaveChangesAsync();
@@ -64,9 +61,6 @@ namespace NutriPlanner.Services
             }
         }
 
-        // =========================================================
-        // INGREDIENTS
-        // =========================================================
 
         public async Task<List<Ingredient>> GetIngredientsAsync()
         {
@@ -101,10 +95,6 @@ namespace NutriPlanner.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
-
-        // =========================================================
-        // INDICATEURS ANALYTIQUES
-        // =========================================================
 
         public async Task<int> GetTotalRecettesAsync()
         {

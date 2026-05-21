@@ -1,0 +1,53 @@
+@using NutriPlanner.Models
+@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="card shadow-sm h-100">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="fw-bold mb-0">@Recette.Titre</h6>
+            <span class="badge bg-secondary">@Recette.Categorie</span>
+        </div>
+
+        <p class="text-muted small mb-2">
+            <i class="bi bi-globe me-1"></i>@Recette.TypeCuisine
+        </p>
+
+        <p class="text-muted small mb-2">
+            <i class="bi bi-people me-1"></i>@Recette.NombrePersonnes personnes
+        </p>
+
+        <div class="d-flex gap-2 mt-2">
+            <span class="badge bg-danger bg-opacity-75">
+                <i class="bi bi-fire me-1"></i>@CaloriesTotales.ToString("F0") kcal total
+            </span>
+            <span class="badge bg-warning text-dark">
+                @CaloriesParPersonne.ToString("F0") kcal/pers
+            </span>
+        </div>
+    </div>
+
+    <div class="card-footer bg-white border-0 pt-0">
+        <AuthorizeView>
+            <Authorized>
+                <a href="/edit-recette/@Recette.Id"
+                   class="btn btn-sm btn-outline-primary me-1">
+                    <i class="bi bi-pencil"></i> Éditer
+                </a>
+                <button class="btn btn-sm btn-outline-danger"
+                        @onclick="() => TriggerDelete(Recette.Id)">
+                    <i class="bi bi-trash"></i> Supprimer
+                </button>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Recette  Recette             { get; set; } = new();
+    [Parameter] public double   CaloriesTotales     { get; set; }
+    [Parameter] public double   CaloriesParPersonne { get; set; }
+    [Parameter] public EventCallback<int> OnDeleteClicked { get; set; }
+
+    private async Task TriggerDelete(int id)
+        => await OnDeleteClicked.InvokeAsync(id);
+}

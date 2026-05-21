@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\NutriPlanner\\NutriPlanner\\NutriPlanner.csproj": {}
+    "D:\\NutriPlanner\\nutriplanner\\NutriPlanner.csproj": {}
   },
   "projects": {
-    "D:\\NutriPlanner\\NutriPlanner\\NutriPlanner.csproj": {
+    "D:\\NutriPlanner\\nutriplanner\\NutriPlanner.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\NutriPlanner\\NutriPlanner\\NutriPlanner.csproj",
+        "projectUniqueName": "D:\\NutriPlanner\\nutriplanner\\NutriPlanner.csproj",
         "projectName": "NutriPlanner",
-        "projectPath": "D:\\NutriPlanner\\NutriPlanner\\NutriPlanner.csproj",
+        "projectPath": "D:\\NutriPlanner\\nutriplanner\\NutriPlanner.csproj",
         "packagesPath": "C:\\Users\\zahra\\.nuget\\packages\\",
-        "outputPath": "D:\\NutriPlanner\\NutriPlanner\\obj\\",
+        "outputPath": "D:\\NutriPlanner\\nutriplanner\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\zahra\\AppData\\Roaming\\NuGet\\NuGet.Config"

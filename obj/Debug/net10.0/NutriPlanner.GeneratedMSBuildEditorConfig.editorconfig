@@ -74,12 +74,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWdpc3Rlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/NutriPlanner/NutriPlanner/Components/Pages/Weather.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xXZWF0aGVyLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/NutriPlanner/NutriPlanner/Components/Routes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/NutriPlanner/NutriPlanner/Components/UI/KpiCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxLcGlDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/NutriPlanner/NutriPlanner/Components/UI/RecetteCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxSZWNldHRlQ2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/NutriPlanner/NutriPlanner/Components/UI/RecetteTable.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxSZWNldHRlVGFibGUucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/NutriPlanner/NutriPlanner/Components/_Imports.razor]

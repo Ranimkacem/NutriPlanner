@@ -1,6 +1,6 @@
 @page "/edit-recette"
 @page "/edit-recette/{Id:int}"
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize]
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Forms
 @inject IRecetteService RecetteService
@@ -19,27 +19,23 @@ else
         <DataAnnotationsValidator />
         <ValidationSummary class="text-danger" />
 
-        <!-- Titre -->
         <div class="mb-3">
             <label class="form-label">Titre :</label>
             <InputText @bind-Value="_recette.Titre" class="form-control" />
             <ValidationMessage For="@(() => _recette.Titre)" class="text-danger" />
         </div>
 
-        <!-- Description -->
         <div class="mb-3">
             <label class="form-label">Description :</label>
             <InputTextArea @bind-Value="_recette.Description" class="form-control" rows="3" />
         </div>
 
-        <!-- Nombre de personnes -->
         <div class="mb-3">
             <label class="form-label">Nombre de personnes :</label>
             <InputNumber @bind-Value="_recette.NombrePersonnes" class="form-control" />
             <ValidationMessage For="@(() => _recette.NombrePersonnes)" class="text-danger" />
         </div>
 
-        <!-- Catégorie -->
         <div class="mb-3">
             <label class="form-label">Catégorie :</label>
             <InputSelect @bind-Value="_recette.Categorie" class="form-select">
@@ -50,7 +46,6 @@ else
             </InputSelect>
         </div>
 
-        <!-- Type de cuisine -->
         <div class="mb-3">
             <label class="form-label">Type de cuisine :</label>
             <InputSelect @bind-Value="_recette.TypeCuisine" class="form-select">
@@ -62,7 +57,6 @@ else
             </InputSelect>
         </div>
 
-        <!-- ===== Section Ingrédients ===== -->
         <h5 class="mt-4">Ingrédients de la recette</h5>
 
         @if (_lignes.Count == 0)
@@ -72,7 +66,7 @@ else
 
         @for (int i = 0; i < _lignes.Count; i++)
         {
-            var index = i; // capture pour le lambda
+            var index = i; 
             <div class="row mb-2 align-items-center">
                 <div class="col-md-5">
                     <select class="form-select"
@@ -134,7 +128,7 @@ else
     private Recette? _recette;
     private List<Ingredient>? _ingredients;
 
-    // Lignes de travail (pas directement les RecetteIngredient EF)
+
     private List<LigneIngredient> _lignes = new();
 
     // DTO local pour éviter les conflits avec EF
@@ -210,7 +204,6 @@ else
     {
         if (_recette == null) return;
 
-        // Reconstruire les RecetteIngredients depuis les lignes
         _recette.RecetteIngredients = _lignes
             .Where(l => l.IngredientId > 0 && l.Quantite > 0)
             .Select(l => new RecetteIngredient

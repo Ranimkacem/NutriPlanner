@@ -10,7 +10,7 @@ namespace NutriPlanner.Models
         [Range(0.01, 100000, ErrorMessage = "La quantité doit être positive.")]
         public double Quantite { get; set; }
 
-        //====== Entity Framework Core relationships ======
+      
         public int RecetteId { get; set; }
         public Recette Recette { get; set; }
 
