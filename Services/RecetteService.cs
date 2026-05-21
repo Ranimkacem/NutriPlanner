@@ -41,11 +41,18 @@ namespace NutriPlanner.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateRecetteAsync(Recette recette)
-        {
-            _dbContext.Recettes.Update(recette);
-            await _dbContext.SaveChangesAsync();
-        }
+       public async Task UpdateRecetteAsync(Recette recette)
+{
+    // Supprimer les anciennes lignes d'ingrédients
+    var anciennesLignes = _dbContext.RecetteIngredients
+        .Where(ri => ri.RecetteId == recette.Id);
+    _dbContext.RecetteIngredients.RemoveRange(anciennesLignes);
+
+    // Mettre à jour la recette (sans toucher aux nouvelles lignes encore)
+    _dbContext.Recettes.Update(recette);
+
+    await _dbContext.SaveChangesAsync();
+}
 
         public async Task DeleteRecetteAsync(int id)
         {
@@ -136,5 +143,79 @@ namespace NutriPlanner.Services
                 .GroupBy(r => r.TypeCuisine)
                 .ToDictionaryAsync(g => g.Key, g => g.Count());
         }
+
+        public async Task<List<RecetteStat>> GetCaloriesParCategorieAsync()
+{
+    var recettes = await _dbContext.Recettes
+        .Include(r => r.RecetteIngredients)
+            .ThenInclude(ri => ri.Ingredient)
+        .ToListAsync();
+
+    return recettes
+        .GroupBy(r => r.Categorie)
+        .Select(g => new RecetteStat
+        {
+            Label = g.Key,
+            Valeur = g.Average(r =>
+                r.NombrePersonnes == 0 ? 0 :
+                r.RecetteIngredients.Sum(ri => ri.Quantite * ri.Ingredient.CaloriesParUnite)
+                / r.NombrePersonnes)
+        })
+        .ToList();
+}
+
+public async Task<List<RecetteStat>> GetCaloriesParTypeCuisineAsync()
+{
+    var recettes = await _dbContext.Recettes
+        .Include(r => r.RecetteIngredients)
+            .ThenInclude(ri => ri.Ingredient)
+        .ToListAsync();
+
+    return recettes
+        .GroupBy(r => r.TypeCuisine)
+        .Select(g => new RecetteStat
+        {
+            Label = g.Key,
+            Valeur = g.Average(r =>
+                r.NombrePersonnes == 0 ? 0 :
+                r.RecetteIngredients.Sum(ri => ri.Quantite * ri.Ingredient.CaloriesParUnite)
+                / r.NombrePersonnes)
+        })
+        .ToList();
+}
+
+public async Task<List<RecetteCountStat>> GetCountParCategorieAsync()
+{
+    return await _dbContext.Recettes
+        .GroupBy(r => r.Categorie)
+        .Select(g => new RecetteCountStat
+        {
+            Label = g.Key,
+            Count = g.Count()
+        })
+        .ToListAsync();
+}
+
+public async Task<List<Recette>> SearchRecettesAsync(
+    string? categorie, string? typeCuisine, string? searchText)
+{
+    IQueryable<Recette> query = _dbContext.Recettes
+        .Include(r => r.RecetteIngredients)
+            .ThenInclude(ri => ri.Ingredient)
+        .AsQueryable();
+
+    if (!string.IsNullOrEmpty(categorie))
+        query = query.Where(r => r.Categorie == categorie);
+
+    if (!string.IsNullOrEmpty(typeCuisine))
+        query = query.Where(r => r.TypeCuisine == typeCuisine);
+
+    if (!string.IsNullOrWhiteSpace(searchText))
+        query = query.Where(r => r.Titre.Contains(searchText));
+
+    return await query.OrderBy(r => r.Titre).ToListAsync();
+}
     }
+
+    
 }

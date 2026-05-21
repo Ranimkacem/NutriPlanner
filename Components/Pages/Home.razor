@@ -1,7 +1,136 @@
 ﻿@page "/"
+@inject NavigationManager NavManager
 
-<PageTitle>Home</PageTitle>
+<PageTitle>NutriPlanner — Accueil</PageTitle>
 
-<h1>Hello, world!</h1>
+<!-- ===== Hero Section ===== -->
+<div class="container-fluid px-0">
+    <div class="bg-success text-white py-5 px-4 text-center"
+         style="background: linear-gradient(135deg, #198754 0%, #20c997 100%) !important;">
+        <div class="py-3">
+            <i class="bi bi-egg-fried" style="font-size: 4rem;"></i>
+            <h1 class="display-4 fw-bold mt-3">NutriPlanner</h1>
+            <p class="lead mb-4">
+                Gérez vos recettes, suivez vos calories et planifiez vos repas facilement.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="/dashboard" class="btn btn-light btn-lg fw-semibold text-success">
+                    <i class="bi bi-speedometer2 me-2"></i>Accéder au Dashboard
+                </a>
+                <a href="/register" class="btn btn-outline-light btn-lg fw-semibold">
+                    <i class="bi bi-person-plus me-2"></i>Créer un compte
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+<div class="container my-5">
+    <h2 class="text-center fw-bold mb-2">Tout ce dont vous avez besoin</h2>
+    <p class="text-center text-muted mb-5">Une application complète pour gérer votre nutrition au quotidien.</p>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm text-center p-3">
+                <div class="card-body">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex
+                                align-items-center justify-content-center mb-3"
+                         style="width:64px; height:64px;">
+                        <i class="bi bi-journal-richtext text-success" style="font-size:1.8rem;"></i>
+                    </div>
+                    <h5 class="fw-bold">Gestion des Recettes</h5>
+                    <p class="text-muted">
+                        Créez, modifiez et organisez vos recettes par catégorie
+                        (Petit-déjeuner, Déjeuner, Dîner, Dessert) et par type de cuisine.
+                    </p>
+                    <a href="/dashboard" class="btn btn-outline-success btn-sm mt-2">
+                        Voir les recettes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm text-center p-3">
+                <div class="card-body">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex
+                                align-items-center justify-content-center mb-3"
+                         style="width:64px; height:64px;">
+                        <i class="bi bi-basket2-fill text-primary" style="font-size:1.8rem;"></i>
+                    </div>
+                    <h5 class="fw-bold">Base d'Ingrédients</h5>
+                    <p class="text-muted">
+                        Gérez une bibliothèque complète d'ingrédients avec leurs valeurs
+                        caloriques et unités (g, ml, pièce, cuillère…).
+                    </p>
+                    <a href="/ingredients" class="btn btn-outline-primary btn-sm mt-2">
+                        Voir les ingrédients
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm text-center p-3">
+                <div class="card-body">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex
+                                align-items-center justify-content-center mb-3"
+                         style="width:64px; height:64px;">
+                        <i class="bi bi-bar-chart-fill text-warning" style="font-size:1.8rem;"></i>
+                    </div>
+                    <h5 class="fw-bold">Analyse Nutritionnelle</h5>
+                    <p class="text-muted">
+                        Visualisez les calories totales, calories par personne et la
+                        répartition de vos recettes avec des graphiques interactifs.
+                    </p>
+                    <a href="/dashboard" class="btn btn-outline-warning btn-sm mt-2">
+                        Voir les stats
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3">
+                <i class="bi bi-egg-fried text-success" style="font-size:2rem;"></i>
+                <h3 class="fw-bold mt-2">Tunisienne</h3>
+                <p class="text-muted">Cuisine locale supportée</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-people-fill text-primary" style="font-size:2rem;"></i>
+                <h3 class="fw-bold mt-2">1 à 100</h3>
+                <p class="text-muted">Personnes par recette</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-fire text-danger" style="font-size:2rem;"></i>
+                <h3 class="fw-bold mt-2">Calories</h3>
+                <p class="text-muted">Calcul automatique et précis</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-shield-lock-fill text-secondary" style="font-size:2rem;"></i>
+                <h3 class="fw-bold mt-2">Sécurisé</h3>
+                <p class="text-muted">Authentification par compte</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container text-center my-5 py-4">
+    <h2 class="fw-bold mb-3">Prêt à commencer ?</h2>
+    <p class="text-muted mb-4">
+        Créez votre compte gratuitement et commencez à gérer vos recettes dès aujourd'hui.
+    </p>
+    <a href="/register" class="btn btn-success btn-lg px-5 me-3">
+        <i class="bi bi-person-plus me-2"></i>S'inscrire gratuitement
+    </a>
+    <a href="/login" class="btn btn-outline-success btn-lg px-5">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+    </a>
+</div>

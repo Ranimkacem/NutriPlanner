@@ -24,5 +24,11 @@ namespace NutriPlanner.Services
         Task<double> GetCaloriesParPersonneAsync(int recetteId);
         Task<Dictionary<string, int>> GetRepartitionParCategorieAsync();
         Task<Dictionary<string, int>> GetRepartitionParTypeCuisineAsync();
+
+        // === ANALYTIQUE AVANCÉ ===
+Task<List<Recette>> SearchRecettesAsync(string? categorie, string? typeCuisine, string? searchText);
+Task<List<RecetteStat>> GetCaloriesParCategorieAsync();
+Task<List<RecetteStat>> GetCaloriesParTypeCuisineAsync();
+Task<List<RecetteCountStat>> GetCountParCategorieAsync();
     }
 }
