@@ -85,8 +85,35 @@
     </div>
 </div>
 
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-globe text-info"></i>
+                    Calories Moyennes / Personne par Type de Cuisine
+                </h5>
+            </div>
+            <div class="card-body">
+                <RadzenChart>
+                    <RadzenColumnSeries Data="@StatsCuisine"
+                                        CategoryProperty="Label"
+                                        ValueProperty="Valeur"
+                                        Title="kcal/pers"
+                                        Fill="#20c997">
+                        <TooltipTemplate Context="d">
+                            <b>@d.Label</b><br />@d.Valeur.ToString("F0") kcal/pers
+                        </TooltipTemplate>
+                    </RadzenColumnSeries>
+                    <RadzenValueAxis Formatter="@(v => Math.Round((double)v, 0) + " kcal")" />
+                    <RadzenLegend Visible="false" />
+                </RadzenChart>
+            </div>
+        </div>
+    </div>
+</div>
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin">
     <Authorized>
         <div class="d-flex gap-2 mb-3">
             <a href="/edit-recette" class="btn btn-success">
@@ -200,6 +227,7 @@ else
     private Dictionary<int, double> CaloriesTotales       = new();
     private Dictionary<int, double> CaloriesParPersonne   = new();
     private List<RecetteStat>       StatsCategorie        = new();
+    private List<RecetteStat>       StatsCuisine          = new();
     private List<RecetteCountStat>  CountCategorie        = new();
     private bool                    ShowAsCards           = false;
 
@@ -230,6 +258,7 @@ else
         RepartitionCuisine   = await RecetteService.GetRepartitionParTypeCuisineAsync();
         StatsCategorie       = await RecetteService.GetCaloriesParCategorieAsync();
         CountCategorie       = await RecetteService.GetCountParCategorieAsync();
+        StatsCuisine         = await RecetteService.GetCaloriesParTypeCuisineAsync();
     }
 
     private async Task ExecuteSearch()

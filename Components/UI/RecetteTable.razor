@@ -34,7 +34,7 @@
                     <td>@CaloriesTotales.GetValueOrDefault(recette.Id, 0).ToString("F0") kcal</td>
                     <td>@CaloriesParPersonne.GetValueOrDefault(recette.Id, 0).ToString("F0") kcal</td>
                     <td>
-                        <AuthorizeView>
+                        <AuthorizeView Roles="Admin">
                             <Authorized>
                                 <a href="/edit-recette/@recette.Id"
                                    class="btn btn-sm btn-outline-primary">

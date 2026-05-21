@@ -1,6 +1,6 @@
 @page "/edit-recette"
 @page "/edit-recette/{Id:int}"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Forms
 @inject IRecetteService RecetteService

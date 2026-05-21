@@ -1,6 +1,6 @@
 @page "/edit-ingredient"
 @page "/edit-ingredient/{Id:int}"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
 

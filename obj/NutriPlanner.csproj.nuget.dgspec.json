@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\NutriPlanner\\nutriplanner\\NutriPlanner.csproj": {}
+    "C:\\Users\\bouzo\\Desktop\\projet.net\\NutriPlanner\\NutriPlanner.csproj": {}
   },
   "projects": {
-    "D:\\NutriPlanner\\nutriplanner\\NutriPlanner.csproj": {
+    "C:\\Users\\bouzo\\Desktop\\projet.net\\NutriPlanner\\NutriPlanner.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\NutriPlanner\\nutriplanner\\NutriPlanner.csproj",
+        "projectUniqueName": "C:\\Users\\bouzo\\Desktop\\projet.net\\NutriPlanner\\NutriPlanner.csproj",
         "projectName": "NutriPlanner",
-        "projectPath": "D:\\NutriPlanner\\nutriplanner\\NutriPlanner.csproj",
-        "packagesPath": "C:\\Users\\zahra\\.nuget\\packages\\",
-        "outputPath": "D:\\NutriPlanner\\nutriplanner\\obj\\",
+        "projectPath": "C:\\Users\\bouzo\\Desktop\\projet.net\\NutriPlanner\\NutriPlanner.csproj",
+        "packagesPath": "C:\\Users\\bouzo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\bouzo\\Desktop\\projet.net\\NutriPlanner\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\zahra\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\bouzo\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"

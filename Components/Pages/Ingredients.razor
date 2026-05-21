@@ -1,4 +1,3 @@
-
 @page "/ingredients"
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -9,7 +8,13 @@
 <PageTitle>Gestion des Ingrédients</PageTitle>
 <h3>Ingrédients</h3>
 
-<a href="/edit-ingredient" class="btn btn-success mb-3">+ Nouvel Ingrédient</a>
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <a href="/edit-ingredient" class="btn btn-success mb-3">
+            <i class="bi bi-plus-lg me-1"></i>Nouvel Ingrédient
+        </a>
+    </Authorized>
+</AuthorizeView>
 
 @if (_ingredients == null)
 {
@@ -23,7 +28,11 @@ else
                 <th>Nom</th>
                 <th>Calories / Unité</th>
                 <th>Unité</th>
-                <th>Actions</th>
+                <AuthorizeView Roles="Admin">
+                    <Authorized>
+                        <th>Actions</th>
+                    </Authorized>
+                </AuthorizeView>
             </tr>
         </thead>
         <tbody>
@@ -33,13 +42,20 @@ else
                     <td>@ing.Nom</td>
                     <td>@ing.CaloriesParUnite kcal</td>
                     <td>@ing.Unite</td>
-                    <td>
-                        <a href="/edit-ingredient/@ing.Id" class="btn btn-sm btn-outline-primary">Éditer</a>
-                        <button class="btn btn-sm btn-outline-danger"
-                                @onclick="() => Supprimer(ing.Id)">
-                            Supprimer
-                        </button>
-                    </td>
+                    <AuthorizeView Roles="Admin">
+                        <Authorized>
+                            <td>
+                                <a href="/edit-ingredient/@ing.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Éditer
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        @onclick="() => Supprimer(ing.Id)">
+                                    <i class="bi bi-trash"></i> Supprimer
+                                </button>
+                            </td>
+                        </Authorized>
+                    </AuthorizeView>
                 </tr>
             }
         </tbody>
