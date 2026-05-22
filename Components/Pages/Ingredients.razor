@@ -6,27 +6,68 @@
 @inject NavigationManager NavManager
 
 <PageTitle>Gestion des Ingrédients</PageTitle>
-<h3>Ingrédients</h3>
 
-<AuthorizeView Roles="Admin">
-    <Authorized>
-        <a href="/edit-ingredient" class="btn btn-success mb-3">
-            <i class="bi bi-plus-lg me-1"></i>Nouvel Ingrédient
-        </a>
-    </Authorized>
-</AuthorizeView>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Ingrédients</h3>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <a href="/edit-ingredient" class="btn btn-success">
+                <i class="bi bi-plus-lg me-1"></i>Nouvel Ingrédient
+            </a>
+        </Authorized>
+    </AuthorizeView>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-5">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text"
+                   class="form-control"
+                   placeholder="Rechercher par nom..."
+                   @bind="_searchText"
+                   @bind:event="oninput" />
+            @if (!string.IsNullOrEmpty(_searchText))
+            {
+                <button class="btn btn-outline-secondary" @onclick="ResetRecherche">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            }
+        </div>
+    </div>
+    <div class="col-md-7 d-flex align-items-center text-muted" style="font-size:13px">
+        @if (_ingredients != null)
+        {
+            <span>@IngredientsFiltres.Count résultat(s) — page @_pageCourante / @TotalPages</span>
+        }
+    </div>
+</div>
 
 @if (_ingredients == null)
 {
     <p>Chargement...</p>
 }
+else if (!IngredientsFiltres.Any())
+{
+    <p class="text-muted text-center mt-4">
+        <i class="bi bi-search me-2"></i>Aucun ingrédient trouvé pour "<strong>@_searchText</strong>".
+    </p>
+}
 else
 {
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover align-middle">
         <thead class="table-dark">
             <tr>
-                <th>Nom</th>
-                <th>Calories / Unité</th>
+                <th style="cursor:pointer" @onclick='() => TrierPar("Nom")'>
+                    Nom
+                    @if (_triColonne == "Nom")
+                    { <i class="bi bi-arrow-@(_triAsc ? "up" : "down") ms-1"></i> }
+                </th>
+                <th style="cursor:pointer" @onclick='() => TrierPar("Calories")'>
+                    Calories / Unité
+                    @if (_triColonne == "Calories")
+                    { <i class="bi bi-arrow-@(_triAsc ? "up" : "down") ms-1"></i> }
+                </th>
                 <th>Unité</th>
                 <AuthorizeView Roles="Admin">
                     <Authorized>
@@ -36,17 +77,17 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var ing in _ingredients)
+            @foreach (var ing in IngredientPage)
             {
                 <tr>
                     <td>@ing.Nom</td>
                     <td>@ing.CaloriesParUnite kcal</td>
-                    <td>@ing.Unite</td>
+                    <td><span class="badge bg-secondary">@ing.Unite</span></td>
                     <AuthorizeView Roles="Admin">
                         <Authorized>
                             <td>
                                 <a href="/edit-ingredient/@ing.Id"
-                                   class="btn btn-sm btn-outline-primary">
+                                   class="btn btn-sm btn-outline-primary me-1">
                                     <i class="bi bi-pencil"></i> Éditer
                                 </a>
                                 <button class="btn btn-sm btn-outline-danger"
@@ -60,15 +101,72 @@ else
             }
         </tbody>
     </table>
+
+    @if (TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center">
+                <li class="page-item @(_pageCourante == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => AllerPage(_pageCourante - 1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </li>
+                @for (int p = 1; p <= TotalPages; p++)
+                {
+                    int numPage = p;
+                    <li class="page-item @(_pageCourante == numPage ? "active" : "")">
+                        <button class="page-link" @onclick="() => AllerPage(numPage)">@numPage</button>
+                    </li>
+                }
+                <li class="page-item @(_pageCourante == TotalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => AllerPage(_pageCourante + 1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    }
 }
 
 @code {
-    private List<Ingredient>? _ingredients;
+    private const int ParPage = 10;
 
-    protected override async Task OnInitializedAsync()
+    private List<Ingredient>? _ingredients;
+    private int    _pageCourante = 1;
+    private string _triColonne   = "Nom";
+    private bool   _triAsc       = true;
+    private string _searchText   = "";
+
+    private List<Ingredient> IngredientsFiltres
     {
-        await Charger();
+        get
+        {
+            if (_ingredients == null) return new();
+
+            var liste = _ingredients.Where(i =>
+                string.IsNullOrEmpty(_searchText) ||
+                i.Nom.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+
+            return (_triColonne, _triAsc) switch
+            {
+                ("Calories", true)  => liste.OrderBy(i => i.CaloriesParUnite).ToList(),
+                ("Calories", false) => liste.OrderByDescending(i => i.CaloriesParUnite).ToList(),
+                (_, true)           => liste.OrderBy(i => i.Nom).ToList(),
+                _                   => liste.OrderByDescending(i => i.Nom).ToList()
+            };
+        }
     }
+
+    private int TotalPages =>
+        (int)Math.Ceiling(IngredientsFiltres.Count / (double)ParPage);
+
+    private List<Ingredient> IngredientPage =>
+        IngredientsFiltres
+            .Skip((_pageCourante - 1) * ParPage)
+            .Take(ParPage)
+            .ToList();
+
+    protected override async Task OnInitializedAsync() => await Charger();
 
     private async Task Charger()
     {
@@ -79,5 +177,27 @@ else
     {
         await RecetteService.DeleteIngredientAsync(id);
         await Charger();
+        if (_pageCourante > TotalPages && TotalPages > 0)
+            _pageCourante = TotalPages;
+    }
+
+    private void AllerPage(int page)
+    {
+        if (page >= 1 && page <= TotalPages)
+            _pageCourante = page;
+    }
+
+    private void TrierPar(string colonne)
+    {
+        if (_triColonne == colonne)
+            _triAsc = !_triAsc;
+        else { _triColonne = colonne; _triAsc = true; }
+        _pageCourante = 1;
+    }
+
+    private void ResetRecherche()
+    {
+        _searchText   = "";
+        _pageCourante = 1;
     }
 }
